@@ -35,7 +35,7 @@ public class CourseService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.COURSE_IS_NOT_VALID, this));
         Curriculum curriculum = curriculumService.getCurriculumByMemberMajor(memberMajor);
 
-        Map<String, Category> judgedCodes = CategoryJudgeUtils.judge(codes, curriculum);
+        Map<String, Category> judgedCodes = CategoryJudgeUtils.judge(code, curriculum);
         return CourseConverter.toCourseDetailInfo(findCourse, judgedCodes.get(code));
     }
 }
