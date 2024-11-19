@@ -80,17 +80,20 @@ public class Take extends BaseRDBEntity {
      */
     @Builder
     private Take(Category category, String takenYear, String takenSemester, Member member,
-            Course course, CustomCourse customCourse, MajorType majorType) {
+            Grade grade, Course course, CustomCourse customCourse, MajorType majorType) {
         this.category = category;
         this.takenYear = takenYear;
         this.takenSemester = takenSemester;
         this.member = member;
+        this.grade = grade;
         this.course = course;
         this.customCourse = customCourse;
         this.majorType = majorType;
 
         checkValidTake();
     }
+
+
 
 
 
@@ -148,17 +151,18 @@ public class Take extends BaseRDBEntity {
             return false;
         }
         Take take = (Take) o;
-        return Objects.equals(id, take.id) && getCategory() == take.getCategory() && Objects.equals(
-                takenYear, take.takenYear) && Objects.equals(takenSemester, take.takenSemester)
-                && Objects.equals(getMember(), take.getMember()) && Objects.equals(
-                getEffectiveCourse(),
-                take.getEffectiveCourse());
+        return Objects.equals(getId(), take.getId()) && getCategory() == take.getCategory()
+                && Objects.equals(takenYear, take.takenYear) && getGrade() == take.getGrade()
+                && Objects.equals(takenSemester, take.takenSemester)
+                && Objects.equals(getMember(), take.getMember())
+                && getMajorType() == take.getMajorType();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, getCategory(), takenYear, takenSemester, getMember(),
-                getEffectiveCourse());
+        return Objects.hash(getId(), getCategory(), takenYear, getGrade(), takenSemester, getEffectiveCourse(),
+                getMember(),
+                getMajorType());
     }
 
     @Override
