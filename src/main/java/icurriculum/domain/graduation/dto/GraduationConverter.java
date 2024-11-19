@@ -13,7 +13,7 @@ public abstract class GraduationConverter {
             List<Object> DTOList,
             final int totalCompletedCredit
     ) {
-        for (Object o : DTOList) {
+/*        for (Object o : DTOList) {
             if (o instanceof GraduationResponse.MainDTO response) {
                 boolean isOverTotalNeedCredit = response.totalNeedCredit() <= totalCompletedCredit;
                 log.info("totalCompletedCredit: {}", totalCompletedCredit);
@@ -33,8 +33,22 @@ public abstract class GraduationConverter {
             if (o instanceof GraduationResponse.MinorDTO) {
 
             }
-        }
-        return new AllDTO();
+        }*/
+
+        GraduationResponse.MainDTO mainDTO = (GraduationResponse.MainDTO) DTOList.get(0);
+        boolean isOverTotalNeedCredit = mainDTO.totalNeedCredit() <= totalCompletedCredit;
+
+        return new AllDTO(
+                mainDTO.swAiDTO(),
+                mainDTO.creativityDTO(),
+                mainDTO.coreDTO(),
+                mainDTO.majorRequiredDTO(),
+                mainDTO.majorSelectDTO(),
+                mainDTO.generalRequiredDTO(),
+                totalCompletedCredit,
+                mainDTO.totalNeedCredit(),
+                isOverTotalNeedCredit
+        );
     }
 
     public static GraduationResponse.MainDTO toMainDTO(

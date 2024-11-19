@@ -4,7 +4,17 @@ import icurriculum.domain.graduation.service.module.processor.dto.ProcessorRespo
 
 public abstract class GraduationResponse {
 
-    public record AllDTO() {
+    public record AllDTO(
+            ProcessorResponse.SwAiDTO swAiDTO,
+            ProcessorResponse.CreativityDTO creativityDTO,
+            ProcessorResponse.CoreDTO coreDTO,
+            ProcessorResponse.MajorRequiredDTO majorRequiredDTO,
+            ProcessorResponse.MajorSelectDTO majorSelectDTO,
+            ProcessorResponse.GeneralRequiredDTO generalRequiredDTO,
+            int totalCompletedCredit,
+            int totalNeedCredit,
+            boolean isOverTotalNeedCredit
+    ) {
 
     }
 
