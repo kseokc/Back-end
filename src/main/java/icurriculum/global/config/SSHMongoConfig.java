@@ -44,6 +44,7 @@ public class SSHMongoConfig {
         int port = databasePort;
 
         if (isServer.equals("false")) {
+            log.info("isServer value: {}", isServer);
             Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
             host = "localhost";
             port = forwardedPort;
