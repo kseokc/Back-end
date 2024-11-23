@@ -4,62 +4,80 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import icurriculum.global.config.SSHConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class SSHMongoConfig {
-    @Value("${spring.data.mongodb.username}")
-    private String mongoUsername;
 
+    private final SSHConfig initializer;
+
+    @Value("${server}")
+    private String isServer;
+
+    @Value("${cloud.aws.ec2.database_endpoint}")
+    private String databaseEndpoint;
+
+    @Value("${cloud.aws.ec2.database_port}")
+    private int databasePort;
+
+    @Value("${spring.data.mongodb.username}")
+    private String mongoUser;
     @Value("${spring.data.mongodb.password}")
     private String mongoPassword;
 
-    @Value("${spring.data.mongodb.host}")
-    private String mongoHost;
-
-
-    private final SSHConfig sshConfig;  // SSHConfig 클래스 사용
-    private final MongoProperties mongoProperties;  // MongoDB 프로퍼티
+    @Value("${spring.data.mongodb.database}")
+    private String databaseName;
 
     @Bean
-    @Primary
     public MongoClient mongoClient() {
-        Integer forwardedPort = sshConfig.buildSshConnection();  // SSHConfig에서 로컬 포트 가져오기
-        String connectionString = String.format(
-            "mongodb://%s:%s@%s:%d/?readPreference=secondaryPreferred&retryWrites=false",
-            mongoUsername,
-            mongoPassword,
-            mongoHost,
-            forwardedPort);  // MongoDB URI 구성
+        String host = databaseEndpoint;
+        int port = databasePort;
 
-        log.info("MongoDB Connection String: {}", connectionString);
+        if (isServer.equals("false")) {
+            Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
+            host = "localhost";
+            port = forwardedPort;
+        }
 
-        // MongoClientSettings 생성
-        MongoClientSettings settings = MongoClientSettings.builder()
-            .applyConnectionString(new ConnectionString(connectionString))  // MongoDB 연결 문자열 적용
-            .build();
+        try {
+            ConnectionString connectionString = new ConnectionString(String.format(
+                    "mongodb://%s:%s@%s:%s/%s?readPreference=secondaryPreferred&retryWrites=false",
+                    mongoUser,
+                    mongoPassword,
+                    host,
+                    port,
+                    databaseName
+            ));
 
-        // MongoClient 생성
-        MongoClient client = MongoClients.create(settings);
+            MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+                    .applyConnectionString(connectionString)
+                    .build();
+
+            log.info("mongo connection through SSH: host={}, port={}", host, port);
 
 
-        return client;  // MongoClient 반환
+            return MongoClients.create(mongoClientSettings);
+        } catch (Exception e) {
+            log.error("Failed to create MongoClient: {}", e.getMessage(), e);
+            throw e; // 예외를 던져서 초기화가 실패하도록 함
+        }
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() {
-        return new MongoTemplate(mongoClient(), "demo");  // 여기서 demo 데이터베이스 지정
+    public MongoTemplate mongoTemplate(MongoClient mongoClient) {
+        MongoDatabaseFactory mongoDbFactory = new SimpleMongoClientDatabaseFactory(mongoClient, databaseName);
+        return new MongoTemplate(mongoDbFactory);
     }
+
 }
+
