@@ -43,12 +43,12 @@ public class SSHMongoConfig {
         String host = databaseEndpoint;
         int port = databasePort;
 
-        if (isServer.equals("false")) {
-            log.info("isServer value: {}", isServer);
-            Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
-            host = "localhost";
-            port = forwardedPort;
-        }
+//        if (isServer.equals("false")) {
+        log.info("isServer value: {}", isServer);
+        Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
+        host = "localhost";
+        port = forwardedPort;
+//        }
 
         try {
             ConnectionString connectionString = new ConnectionString(String.format(
@@ -65,7 +65,6 @@ public class SSHMongoConfig {
                     .build();
 
             log.info("mongo connection through SSH: host={}, port={}", host, port);
-
 
             return MongoClients.create(mongoClientSettings);
         } catch (Exception e) {
