@@ -96,9 +96,9 @@ jobs:
           key: ${{ secrets.RELEASE_SSH_KEY }}
           script: |
             # Stop and remove all containers except MongoDB
-            sudo docker ps -a -q --filter "name!=mongoDB" | xargs -r sudo docker stop || true
-            sudo docker ps -a -q --filter "name!=mongoDB" | xargs -r sudo docker rm || true
-            sudo docker images -q | xargs -r docker rmi || true
+            sudo docker stop $(sudo docker ps -a -q) | true
+            sudo docker rm $(sudo docker ps -a -q) | true
+            sudo docker images -q | xargs -r docker rmi
             sudo docker system prune -af
   
             # Docker login and pull new image from ECR
