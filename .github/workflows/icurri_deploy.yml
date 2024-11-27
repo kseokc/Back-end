@@ -2,7 +2,7 @@ name: ICURRI_DEPLOY
 
 on:
   push:
-    branches: [ "release" ]
+    branches: [ "main", "release" ]
 
 jobs:
   ci:
@@ -15,11 +15,15 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       ECR_URI: ${{ secrets.ECR_URI }}
       IMAGE_TAG: ${{ github.sha }}
+      MONGO_USER: ${{ secrets.MONGO_USER }}
+      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      MONGO_HOST: ${{ secrets.MONGO_HOST }}
+      MONGO_DB: ${{ secrets.MONGO_DB }}
 
     steps:
-      #체크아웃
+      # 체크아웃
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # JDK 설치
       - name: Set up JDK 17
@@ -28,7 +32,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      #서브 모듈 접근
+      # 서브 모듈 접근
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
@@ -50,10 +54,10 @@ jobs:
         with:
           arguments: clean build -x test
 
+      # ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
 
       ## Release Branch Build
       - name: Build, Tag (Release Branch)
@@ -69,7 +73,9 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         if: github.ref == 'refs/heads/main'
         run: |
-          docker build --build-arg SPRING_PROFILE=dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --build-arg SPRING_PROFILE=prod -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+      # AWS ECR Push
       - name: AWS ECR Push
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -86,32 +92,53 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
-      # Deploy to EC2 (Release Branch)
+      # EC2 배포 (Release Branch)
       - name: Deploy to EC2 (Release Branch)
         if: github.ref == 'refs/heads/release'
         uses: appleboy/ssh-action@master
+        env:
+          ENV_FILE: "/home/ubuntu/.env"
+          COMPOSE: "/home/ubuntu/docker-compose.yml"
         with:
           host: ${{ secrets.RELEASE_EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.RELEASE_SSH_KEY }}
           script: |
-            # Stop and remove all containers except MongoDB
+            echo "ECR_URI=${{ secrets.ECR_URI }}" > /home/ubuntu/.env
+            echo "GITHUB_SHA=${{ github.sha }}" >> /home/ubuntu/.env
+            echo "SPRING_PROFILES=dev" >> /home/ubuntu/.env
+            echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> /home/ubuntu/.env
+            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> /home/ubuntu/.env
+            echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> /home/ubuntu/.env
+            echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> /home/ubuntu/.env
+
+            sudo docker stop $(sudo docker ps -a -q) || true
+            sudo docker rm $(sudo docker ps -a -q) || true
+            sudo docker images -q | xargs -r docker rmi || true
+            sudo docker system prune -af
+            aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_URI }} && sudo docker pull ${{ secrets.ECR_URI }}:${{ github.sha }}
+            sudo -E  docker-compose up -d
+
+      # EC2 배포 (Main Branch)
+      - name: Deploy to EC2 (Main Branch)
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.MAIN_EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.MAIN_SSH_KEY }}
+          script: |
+            echo "ECR_URI=${{ secrets.ECR_URI }}" > /home/ubuntu/.env
+            echo "GITHUB_SHA=${{ github.sha }}" >> /home/ubuntu/.env
+            echo "SPRING_PROFILES=prod" >> /home/ubuntu/.env
+            echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> /home/ubuntu/.env
+            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> /home/ubuntu/.env
+            echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> /home/ubuntu/.env
+            echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> /home/ubuntu/.env
+
             sudo docker stop $(sudo docker ps -a -q) | true
             sudo docker rm $(sudo docker ps -a -q) | true
             sudo docker images -q | xargs -r docker rmi
             sudo docker system prune -af
-  
-            # Docker login and pull new image from ECR
-            aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
-            sudo docker pull ${{ secrets.ECR_URI }}:${{ github.sha }}
-  
-            # Run the new container
-            sudo docker run --name dotflow-dev-repo -d \
-              -e SPRING_PROFILE=dev \
-              -e TZ=Asia/Seoul \
-              -e SERVER=true \
-              -p 8080:8080 \
-              -p 6379:6379 \
-              -p 3306:3306 \   # MySQL 포트 매핑
-              -p 27017:27017 \ # MongoDB 포트 매핑
-              ${{ secrets.ECR_URI }}:${{ github.sha }}
+            aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_URI }} && sudo docker pull ${{ secrets.ECR_URI }}:${{ github.sha }}
+            sudo -E  docker-compose up -d
