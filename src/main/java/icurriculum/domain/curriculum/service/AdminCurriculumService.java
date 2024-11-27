@@ -30,6 +30,7 @@ public class AdminCurriculumService {
     ) {
         CurriculumDecider decider = convertToDecider(majorType, departmentName, joinYear);
 
+
         return repository.findByDecider(decider)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.CURRICULUM_NOT_FOUND));
     }

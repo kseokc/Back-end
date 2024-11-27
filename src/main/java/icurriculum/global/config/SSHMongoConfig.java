@@ -38,33 +38,39 @@ public class SSHMongoConfig {
     @Value("${spring.data.mongodb.database}")
     private String databaseName;
 
+    @Value("${spring.data.mongodb.connection_string}")
+    private String connectionCommand;
+
+    @Value("${spring.data.mongodb.app_name")
+    private String appName;
+
     @Bean
     public MongoClient mongoClient() {
         String host = databaseEndpoint;
         int port = databasePort;
 
 //        if (isServer.equals("false")) {
-        log.info("isServer value: {}", isServer);
-        Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
-        host = "localhost";
-        port = forwardedPort;
+//            log.info("isServer value: {}", isServer);
+//            Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
+//            host = "localhost";
+//            port = forwardedPort;
 //        }
 
         try {
             ConnectionString connectionString = new ConnectionString(String.format(
-                    "mongodb://%s:%s@%s:%s/%s?readPreference=secondaryPreferred&retryWrites=false",
+                    connectionCommand,
                     mongoUser,
                     mongoPassword,
-                    host,
-                    port,
-                    databaseName
+                    databaseEndpoint,
+                    databaseName,
+                    appName
             ));
 
             MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                     .applyConnectionString(connectionString)
                     .build();
 
-            log.info("mongo connection through SSH: host={}, port={}", host, port);
+            log.info("mongo connection through SVG: end_point={}", databaseEndpoint);
 
             return MongoClients.create(mongoClientSettings);
         } catch (Exception e) {
