@@ -114,4 +114,4 @@ jobs:
               -p 6379:6379 \
               -p 3306:3306 \   # MySQL 포트 매핑
               -p 27017:27017 \ # MongoDB 포트 매핑
-              ${{ secrets.ECR_URI }}:${{ github.sha }
+              ${{ secrets.ECR_URI }}:${{ github.sha }}
