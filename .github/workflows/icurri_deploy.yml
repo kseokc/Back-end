@@ -106,4 +106,12 @@ jobs:
             sudo docker pull ${{ secrets.ECR_URI }}:${{ github.sha }}
   
             # Run the new container
-            sudo docker run --name dotflow-dev-repo -d -e SPRING_PROFILE=dev -e TZ=Asia/Seoul -e SERVER=true -p 8080:8080 ${{ secrets.ECR_URI }}:${{ github.sha }}
+            sudo docker run --name dotflow-dev-repo -d \
+              -e SPRING_PROFILE=dev \
+              -e TZ=Asia/Seoul \
+              -e SERVER=true \
+              -p 8080:8080 \
+              -p 6379:6379 \
+              -p 3306:3306 \   # MySQL 포트 매핑
+              -p 27017:27017 \ # MongoDB 포트 매핑
+              ${{ secrets.ECR_URI }}:${{ github.sha }
