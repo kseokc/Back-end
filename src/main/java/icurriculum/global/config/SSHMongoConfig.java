@@ -19,17 +19,8 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 @RequiredArgsConstructor
 public class SSHMongoConfig {
 
-    private final SSHConfig initializer;
-
-    @Value("${server}")
-    private String isServer;
-
     @Value("${cloud.aws.ec2.database_endpoint}")
     private String databaseEndpoint;
-
-    @Value("${cloud.aws.ec2.database_port}")
-    private int databasePort;
-
     @Value("${spring.data.mongodb.username}")
     private String mongoUser;
     @Value("${spring.data.mongodb.password}")
@@ -46,15 +37,6 @@ public class SSHMongoConfig {
 
     @Bean
     public MongoClient mongoClient() {
-        String host = databaseEndpoint;
-        int port = databasePort;
-
-//        if (isServer.equals("false")) {
-//            log.info("isServer value: {}", isServer);
-//            Integer forwardedPort = initializer.buildSshConnection(databaseEndpoint, databasePort);
-//            host = "localhost";
-//            port = forwardedPort;
-//        }
 
         try {
             ConnectionString connectionString = new ConnectionString(String.format(
@@ -62,7 +44,6 @@ public class SSHMongoConfig {
                     mongoUser,
                     mongoPassword,
                     databaseEndpoint,
-                    databaseName,
                     appName
             ));
 
