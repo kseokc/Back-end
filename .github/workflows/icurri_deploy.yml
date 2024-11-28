@@ -15,10 +15,6 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       ECR_URI: ${{ secrets.ECR_URI }}
       IMAGE_TAG: ${{ github.sha }}
-      MONGO_USER: ${{ secrets.MONGO_USER }}
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-      MONGO_HOST: ${{ secrets.MONGO_HOST }}
-      MONGO_DB: ${{ secrets.MONGO_DB }}
 
     steps:
       # 체크아웃
@@ -39,7 +35,7 @@ jobs:
           token: ${{ secrets.SUBMODULE_ACTION_TOKEN }}
           submodules: true
 
-      # 서브 모듈 변경 점 있으면 update
+      # 서브 모듈 변경점 있으면 update
       - name: Git Submodule Update
         run: |
           git submodule update --remote --recursive
@@ -54,7 +50,6 @@ jobs:
         with:
           arguments: clean build -x test
 
-      # ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -66,7 +61,6 @@ jobs:
         if: github.ref == 'refs/heads/release'
         run: |
           docker build --build-arg SPRING_PROFILE=dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-
       ## Main Branch Build
       - name: Build, Tag (Main Branch)
         env:
@@ -74,8 +68,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           docker build --build-arg SPRING_PROFILE=prod -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-
-      # AWS ECR Push
       - name: AWS ECR Push
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -92,7 +84,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
-      # EC2 배포 (Release Branch)
+      # Deploy to EC2 (Release Branch)
       - name: Deploy to EC2 (Release Branch)
         if: github.ref == 'refs/heads/release'
         uses: appleboy/ssh-action@master
@@ -107,19 +99,17 @@ jobs:
             echo "ECR_URI=${{ secrets.ECR_URI }}" > /home/ubuntu/.env
             echo "GITHUB_SHA=${{ github.sha }}" >> /home/ubuntu/.env
             echo "SPRING_PROFILES=dev" >> /home/ubuntu/.env
-            echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> /home/ubuntu/.env
-            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> /home/ubuntu/.env
-            echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> /home/ubuntu/.env
-            echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> /home/ubuntu/.env
-
+            
             sudo docker stop $(sudo docker ps -a -q) || true
             sudo docker rm $(sudo docker ps -a -q) || true
             sudo docker images -q | xargs -r docker rmi || true
             sudo docker system prune -af
             aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_URI }} && sudo docker pull ${{ secrets.ECR_URI }}:${{ github.sha }}
-            sudo -E  docker-compose up -d
 
-      # EC2 배포 (Main Branch)
+            # Docker Compose로 배포
+            sudo -E docker-compose -f /home/ubuntu/docker-compose.yml up -d
+            
+      # Deploy to EC2 (Main Branch)
       - name: Deploy to EC2 (Main Branch)
         if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@master
@@ -131,14 +121,12 @@ jobs:
             echo "ECR_URI=${{ secrets.ECR_URI }}" > /home/ubuntu/.env
             echo "GITHUB_SHA=${{ github.sha }}" >> /home/ubuntu/.env
             echo "SPRING_PROFILES=prod" >> /home/ubuntu/.env
-            echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> /home/ubuntu/.env
-            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> /home/ubuntu/.env
-            echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> /home/ubuntu/.env
-            echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> /home/ubuntu/.env
-
-            sudo docker stop $(sudo docker ps -a -q) | true
-            sudo docker rm $(sudo docker ps -a -q) | true
-            sudo docker images -q | xargs -r docker rmi
+            
+            sudo docker stop $(sudo docker ps -a -q) || true
+            sudo docker rm $(sudo docker ps -a -q) || true
+            sudo docker images -q | xargs -r docker rmi || true
             sudo docker system prune -af
             aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_URI }} && sudo docker pull ${{ secrets.ECR_URI }}:${{ github.sha }}
-            sudo -E  docker-compose up -d
+
+            # Docker Compose로 배포
+            sudo -E docker-compose -f /home/ubuntu/docker-compose.yml up -d
