@@ -19,7 +19,7 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 @RequiredArgsConstructor
 public class SSHMongoConfig {
 
-    @Value("${cloud.aws.ec2.database_endpoint}")
+    @Value("${cloud.aws.ec2.mongo_endpoint}")
     private String databaseEndpoint;
     @Value("${spring.data.mongodb.username}")
     private String mongoUser;
