@@ -15,6 +15,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableJpaRepositories(basePackages = {
+        "icurriculum.domain.course.repository",
+        "icurriculum.domain.department.repository",
+        "icurriculum.domain.member.repository",
+        "icurriculum.domain.membermajor.repository",
+        "icurriculum.domain.take.repository"
+})
 public class SSHDataSourceConfig {
 
     private final SSHConfig initializer;

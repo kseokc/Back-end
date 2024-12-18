@@ -13,10 +13,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableMongoRepositories (basePackages = {
+        "icurriculum.domain.curriculum.repository"
+})
 public class SSHMongoConfig {
 
     @Value("${cloud.aws.ec2.mongo_endpoint}")
