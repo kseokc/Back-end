@@ -14,6 +14,11 @@ public enum ErrorStatus {
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     /*
+     * mail
+     */
+    MAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "MAIL400","잘못된 메일입니다."),
+    MAIL_NOT_SEND(HttpStatus.BAD_REQUEST, "MAIL401", "메일 전송에 실패했습니다."),
+    /*
      * take
      */
     TAKE_HAS_ABNORMAL_COURSE(HttpStatus.BAD_REQUEST, "TAKE401",
