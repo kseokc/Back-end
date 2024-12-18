@@ -1,10 +1,12 @@
 package icurriculum.global.config;
 
-import icurriculum.domain.member.Service.MemberService;
 import icurriculum.global.security.filter.JwtAuthFilter;
 import icurriculum.global.security.filter.LoginFilter;
 import icurriculum.global.security.service.redis.RefreshTokenService;
 import icurriculum.global.security.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsWebFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +45,25 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
+                // cors 다 해결
+                .cors((cors) -> cors
+                        .configurationSource(new CorsConfigurationSource() {
+                            @Override
+                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                                CorsConfiguration configuration = new CorsConfiguration();
+                                configuration.setAllowedOrigins(Collections.singletonList("*"));
+                                configuration.setAllowedMethods(Collections.singletonList("*"));
+                                configuration.setAllowCredentials(true);
+                                configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Custom-Header"));
+                                configuration.setMaxAge(3600L);
+
+                                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                                return configuration;
+                            }
+                        }))
                 //csrf disable
                 .csrf(AbstractHttpConfigurer::disable)
 
