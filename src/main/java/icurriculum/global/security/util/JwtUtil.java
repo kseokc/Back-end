@@ -19,7 +19,6 @@ import java.util.Date;
 public class JwtUtil {
 
     private SecretKey secretKey;
-    private CustomUserDetailsService customUserDetailsService;
 
     private static final String HASH_ALGORITHM = Jwts.SIG.HS256.key().build().getAlgorithm();
     private static final String PAYLOAD_MEMBER_ID_KEY = "memberId";
@@ -29,7 +28,6 @@ public class JwtUtil {
 
     public JwtUtil(@Value("${jwt.secret}") String secret, CustomUserDetailsService customUserDetailsService) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),HASH_ALGORITHM);
-        this.customUserDetailsService = customUserDetailsService;
     }
 
     public String createJwt(Long memberId, String email, Long seconds, RoleType roleType) {

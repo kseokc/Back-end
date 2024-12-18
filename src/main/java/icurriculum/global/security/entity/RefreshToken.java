@@ -3,11 +3,14 @@ package icurriculum.global.security.entity;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
 import java.io.Serializable;
 
+
+@RedisHash("refresh_token") // Redis 엔티티 이름 설정
 public class RefreshToken implements Serializable {
 
     @Id
