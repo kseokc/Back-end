@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,16 +26,15 @@ import java.util.Map;
 
 
 @RequiredArgsConstructor
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${jwt.access-token-validity-in-seconds}")
-    private Long ACCESS_TOKEN_VALIDITY_IN_SECONDS;
-    @Value("${jwt.refresh-token-validity-in-seconds}")
-    private Long REFRESH_TOKEN_VALIDITY_IN_SECONDS;
+    private static Long ACCESS_TOKEN_VALIDITY_IN_SECONDS = 604800L;
+    private static Long REFRESH_TOKEN_VALIDITY_IN_SECONDS = 1209600L;
 
     private static final String ACCESS_TOKEN_KEY = "access-token";
     private static final String REFRESH_TOKEN_KEY = "refresh-token";
@@ -59,12 +59,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication)
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                            Authentication authentication)
             throws IOException, ServletException {
         UserDetailsDTO userDetails = (UserDetailsDTO) authentication.getPrincipal();
 
         //securityContext 저장
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         Long memberId = userDetails.getMemberId();
@@ -72,25 +74,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         RoleType roleType = userDetails.getMember().getRole();
 
         //access token 생성 및 저장
-        String accessToken = jwtUtil.createJwt(memberId, email, ACCESS_TOKEN_VALIDITY_IN_SECONDS,roleType);
+        String accessToken = jwtUtil.createJwt(memberId, email, true, roleType);
         CookieUtil.addCookie(response, ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_VALIDITY_IN_SECONDS.intValue());
 
         //refresh token 생성 및 저장
-        String refreshToken = jwtUtil.createJwt(memberId, email, REFRESH_TOKEN_VALIDITY_IN_SECONDS,roleType);
+        String refreshToken = jwtUtil.createJwt(memberId, email, false, roleType);
         refreshTokenService.saveRefreshToken(memberId, refreshToken);
         CookieUtil.addCookie(response, REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_VALIDITY_IN_SECONDS.intValue());
 
         response.setStatus(HttpStatus.OK.value()); //성공하면 200 상태코드
 
-        Map<String,String> tokens = Map.of(
-                "accessToken",accessToken,
-                "refreshToken",refreshToken
+        Map<String, String> tokens = Map.of(
+                "accessToken", accessToken,
+                "refreshToken", refreshToken
         );
         response.getWriter().write(objectMapper.writeValueAsString(tokens));
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Map<String, String> erroResponse = Map.of(
                 "error", "Authentication failed",

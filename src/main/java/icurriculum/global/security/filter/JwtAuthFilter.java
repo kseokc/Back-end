@@ -46,11 +46,11 @@ public class JwtAuthFilter extends OncePerRequestFilter { //http 요청마다 Jw
 
         if (authorization == null) {
             SecurityContextHolder.clearContext();
-            filterChain.doFilter(request,response);
+            filterChain.doFilter(request, response);
             return;
         }
 
-        if (!authorization.startsWith(AUTHORIZATION_TYPE)){
+        if (!authorization.startsWith(AUTHORIZATION_TYPE)) {
             handleException(request, response, filterChain, AUTHENTICATION_TYPE_IS_NOT_BEARER);
             return;
         }
@@ -71,14 +71,16 @@ public class JwtAuthFilter extends OncePerRequestFilter { //http 요청마다 Jw
                 null, List.of(roleType::toString));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        log.info(request.toString());
+
         filterChain.doFilter(request, response);
     }
 
     private void handleException(HttpServletRequest request, HttpServletResponse response,
-                                 FilterChain filterChain, ErrorStatus exception) throws ServletException, IOException{
+                                 FilterChain filterChain, ErrorStatus exception) throws ServletException, IOException {
         SecurityContextHolder.clearContext();
         //예외 정보를 활용하기 위해 request에 설정
-        request.setAttribute("authException",exception);
+        request.setAttribute("authException", exception);
 
         // 클라이언트에 예외 정보 날림
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -96,6 +98,6 @@ public class JwtAuthFilter extends OncePerRequestFilter { //http 요청마다 Jw
         //swagger 필터링 제외
         String path = request.getRequestURI();
         return EXCLUDE_URL_PATTERN_LIST.stream()
-                .anyMatch(urlPattern -> path.startsWith(urlPattern)) || path.equals(CHECK_URL);
+                .anyMatch(path::startsWith) || path.equals(CHECK_URL);
     }
 }

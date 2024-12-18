@@ -68,7 +68,7 @@ public enum ErrorStatus {
      */
     DEPARTMENT_NAME_INVALID_DATA(HttpStatus.BAD_REQUEST, "DEPARTMENTNAME400",
             "학과이름의 데이터형식이 올바르지 않습니다."),
-    DEPARTMENT_NOT_FOUND_BY_NAME(HttpStatus.BAD_REQUEST, "DEPARTMENT400", "해당 이름의 학과가 존재하지 않습니다."),
+    DEPARTMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "DEPARTMENT400", "해당 학과가 존재하지 않습니다."),
 
     /*
      * category
@@ -112,6 +112,8 @@ public enum ErrorStatus {
             "해당 id를 가진 회원이 존재하지 않습니다."),
     MEMBER_NOT_FOUND_BY_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER4001",
             "해당 email을 가진 회원이 존재하지 않습니다."),
+    MEMBER_DUPLICATE_BY_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER4002",
+            "이미 가입된 email입니다. "),
 
     /*
      * login용 token

@@ -1,4 +1,4 @@
-package icurriculum.domain.member.Controller;
+package icurriculum.domain.member.controller;
 
 import icurriculum.domain.member.Member;
 import icurriculum.domain.member.Service.MemberService;

@@ -24,7 +24,7 @@ public abstract class MemberRequest {
         private String name;
 
         @NotNull
-        private String departmentName;
+        private Long departmentId;
 
         @NotNull
         private Integer joinYear;

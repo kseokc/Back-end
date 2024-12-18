@@ -20,6 +20,12 @@ public class JwtUtil {
 
     private SecretKey secretKey;
 
+    @Value("${jwt.access-token-validity-in-seconds}")
+    private Long ACCESS_TOKEN_VALIDITY_IN_SECONDS;
+    @Value("${jwt.refresh-token-validity-in-seconds}")
+    private Long REFRESH_TOKEN_VALIDITY_IN_SECONDS;
+
+
     private static final String HASH_ALGORITHM = Jwts.SIG.HS256.key().build().getAlgorithm();
     private static final String PAYLOAD_MEMBER_ID_KEY = "memberId";
     private static final String PAYLOAD_EMAIL_KEY = "email";
@@ -27,13 +33,18 @@ public class JwtUtil {
 
 
     public JwtUtil(@Value("${jwt.secret}") String secret, CustomUserDetailsService customUserDetailsService) {
-        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),HASH_ALGORITHM);
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HASH_ALGORITHM);
     }
 
-    public String createJwt(Long memberId, String email, Long seconds, RoleType roleType) {
+    public String createJwt(Long memberId, String email, Boolean isAccess, RoleType roleType) {
         final LocalDateTime now = LocalDateTime.now();
         final Date issuedDate = localDateTimeToDate(now);
-        final Date expiredDate = localDateTimeToDate(now.plusSeconds(seconds));
+        final Date expiredDate;
+        if (isAccess) {
+            expiredDate = localDateTimeToDate(now.plusSeconds(ACCESS_TOKEN_VALIDITY_IN_SECONDS));
+        }else{
+            expiredDate = localDateTimeToDate(now.plusSeconds(REFRESH_TOKEN_VALIDITY_IN_SECONDS));
+        }
 
         return Jwts.builder()
                 .claim(PAYLOAD_MEMBER_ID_KEY, memberId.toString())

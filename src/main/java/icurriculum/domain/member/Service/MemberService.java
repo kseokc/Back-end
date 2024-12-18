@@ -13,6 +13,7 @@ import icurriculum.domain.membermajor.repository.MemberMajorRepository;
 import icurriculum.global.response.exception.GeneralException;
 import icurriculum.global.response.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -40,8 +42,12 @@ public class MemberService {
 
     @Transactional
     public Member join(MemberRequest.JoinDTO request) {
-        Department department = departmentRepository.findByName(request.getDepartmentName()).orElseThrow(
-                () -> new GeneralException(ErrorStatus.DEPARTMENT_NOT_FOUND_BY_NAME)
+        Optional.of(request.getEmail())
+                .filter(email -> !memberRepository.existsByEmail(email))
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_DUPLICATE_BY_EMAIL));
+
+        Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(
+                () -> new GeneralException(ErrorStatus.DEPARTMENT_NOT_FOUND)
         );
         Member newMember = memberConverter.toEntity(request);
         newMember.setPassword(bCryptPasswordEncoder.encode(request.getPassword().toLowerCase()));

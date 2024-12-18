@@ -8,6 +8,7 @@ import icurriculum.domain.membermajor.MajorType;
 import icurriculum.domain.membermajor.MemberMajor;
 import icurriculum.domain.membermajor.service.MemberMajorService;
 import icurriculum.global.response.ApiResponse;
+import icurriculum.global.security.annotation.LoginMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +26,7 @@ public class CourseController {
 
     @GetMapping("/single")
     public ApiResponse<DetailInfoDTO> getCourse(
-            Member member,
+            @LoginMember Member member,
             @RequestBody CourseRequest.SimpleInfoDTO request) {
         MajorType majorType = MajorType.valueOf(request.getMajorType());
         MemberMajor memberMajor = memberMajorService.getMemberMajorByMemberAndMajorType(member,

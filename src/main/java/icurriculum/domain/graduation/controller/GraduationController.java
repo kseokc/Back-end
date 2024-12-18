@@ -5,6 +5,7 @@ import icurriculum.domain.graduation.service.AllGraduationService;
 import icurriculum.domain.member.Member;
 import icurriculum.domain.member.repository.MemberRepository;
 import icurriculum.global.response.ApiResponse;
+import icurriculum.global.security.annotation.LoginMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +19,7 @@ public class GraduationController {
 
     @PostMapping("check-graduation")
     public ApiResponse<GraduationResponse.AllDTO> checkAll(
-            Member member
+            @LoginMember Member member
     ) {
 
         /**
@@ -27,7 +28,7 @@ public class GraduationController {
          * 2. 현재는 단일전공 기능만 제공, 추후 다른 전공상태도 제공
          */
 
-        Member testMember = testMemberRepository.findById(1L).get(); // 삭제 예정
+        Member testMember = testMemberRepository.findById(2L).get(); // 삭제 예정
         return ApiResponse.onSuccess(
                 allGraduationService.executeAll(testMember)
         );

@@ -8,6 +8,7 @@ import icurriculum.domain.take.dto.TakeRequest;
 import icurriculum.domain.take.dto.TakeResponse.TakeListDTO;
 import icurriculum.domain.take.service.TakeService;
 import icurriculum.global.response.ApiResponse;
+import icurriculum.global.security.annotation.LoginMember;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class TakeController {
     private final TakeService takeService;
 
     @GetMapping("/")
-    public ApiResponse<TakeListDTO> getTake(Member member) {
+    public ApiResponse<TakeListDTO> getTake(@LoginMember Member member) {
 
         List<Take> takeList = takeService.getTakeListByMember(member);
         TakeListDTO takes = TakeConverter.toTakeList(takeList);
@@ -35,11 +36,11 @@ public class TakeController {
 
     @PostMapping("/create")
     public ApiResponse<TakeListDTO> createTake(
-        Member member,
-        @RequestBody TakeRequest.TakeCreateListDTO takeCreateListDTO) {
+            @LoginMember Member member,
+            @RequestBody TakeRequest.TakeCreateListDTO takeCreateListDTO) {
 
         TakeListDTO takes = takeService.createTakeListByMember(member,
-            takeCreateListDTO);
+                takeCreateListDTO);
 
         return ApiResponse.onSuccess(takes);
     }
@@ -47,8 +48,8 @@ public class TakeController {
 
     @PostMapping("/update")
     public ApiResponse<TakeListDTO> updateTake(
-        Member member,
-        @RequestBody TakeRequest.TakeUpdateDTO takeUpdateDTO) {
+            @LoginMember Member member,
+            @RequestBody TakeRequest.TakeUpdateDTO takeUpdateDTO) {
 
         TakeListDTO takes = takeService.upadateTakeByMember(member, takeUpdateDTO);
 
@@ -57,8 +58,8 @@ public class TakeController {
 
     @PostMapping("/delete")
     public ApiResponse<TakeListDTO> deleteTake(
-        Member member,
-        @RequestBody TakeRequest.TakeDeleteDTO takeDeleteDTO) {
+            @LoginMember Member member,
+            @RequestBody TakeRequest.TakeDeleteDTO takeDeleteDTO) {
 
         TakeListDTO takes = takeService.deleteTakeByMember(member, takeDeleteDTO);
 

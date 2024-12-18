@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/mail/**").permitAll()
+                        .requestMatchers("/members/join").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers( //swagger 세팅
