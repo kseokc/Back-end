@@ -5,7 +5,11 @@ import icurriculum.global.response.status.ErrorStatus;
 
 public enum MajorType {
 
-    주전공;
+    주전공,
+    복수전공,
+    부전공,
+    연계전공,
+    융합전공;
 
     public static MajorType to(String value) {
         try {

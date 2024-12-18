@@ -47,7 +47,7 @@ public class MemberMajor extends BaseRDBEntity {
     private Member member;
 
     @Builder
-    private MemberMajor(MajorType majorType, Department department, Member member) {
+    private MemberMajor( MajorType majorType,Department department, Member member) {
         this.majorType = majorType;
         this.department = department;
         this.member = member;

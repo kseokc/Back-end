@@ -5,15 +5,12 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import icurriculum.domain.common.BaseRDBEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import icurriculum.domain.membermajor.MemberMajor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = PROTECTED)
@@ -26,6 +23,14 @@ public class Member extends BaseRDBEntity {
     @Column(name = "member_id")
     private Long id;
 
+    @Email
+    @Column(nullable = false)
+    private String email;
+
+    @Setter
+    @Column(nullable = false)
+    private String password;
+
     @Column(name = "member_name", nullable = false)
     private String name;
 
@@ -36,10 +41,11 @@ public class Member extends BaseRDBEntity {
     private RoleType role;
 
     @Builder
-    private Member(String name, Integer joinYear, RoleType role) {
+    private Member(String email, String name, Integer joinYear,RoleType roleType) {
+        this.email = email;
         this.name = name;
         this.joinYear = joinYear;
-        this.role = role;
+        this.role = roleType;
     }
 
 }

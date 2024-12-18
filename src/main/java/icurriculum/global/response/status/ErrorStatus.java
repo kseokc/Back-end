@@ -68,6 +68,7 @@ public enum ErrorStatus {
      */
     DEPARTMENT_NAME_INVALID_DATA(HttpStatus.BAD_REQUEST, "DEPARTMENTNAME400",
             "학과이름의 데이터형식이 올바르지 않습니다."),
+    DEPARTMENT_NOT_FOUND_BY_NAME(HttpStatus.BAD_REQUEST, "DEPARTMENT400", "해당 이름의 학과가 존재하지 않습니다."),
 
     /*
      * category
@@ -102,8 +103,28 @@ public enum ErrorStatus {
     DESERIALIZATION_FAILURE(HttpStatus.BAD_REQUEST, "ADDITIONAL400",
             "추가정보 역직렬화에 실패하였습니다."),
     EMPTY_ADDITIONAL_INFO_FAILURE(HttpStatus.BAD_REQUEST, "ADDITIONAL401",
-            "추가정보에 key 값에 대응하는 value 값이 존재하지 않습니다.");
+            "추가정보에 key 값에 대응하는 value 값이 존재하지 않습니다."),
 
+    /*
+     * member
+     */
+    MEMBER_NOT_FOUND_BY_MEMBER_ID(HttpStatus.BAD_REQUEST, "MEMBER4000",
+            "해당 id를 가진 회원이 존재하지 않습니다."),
+    MEMBER_NOT_FOUND_BY_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER4001",
+            "해당 email을 가진 회원이 존재하지 않습니다."),
+
+    /*
+     * login용 token
+     */
+    INVALID_TOKEN(HttpStatus.BAD_REQUEST, "JWT4000",
+            "유효하지 않은 토큰입니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "JWT4001",
+            "해당 refresh token이 존재하지 않습니다."),
+    TOKEN_IS_EXPIRED(HttpStatus.BAD_REQUEST, "JWT4002",
+            "만료된 토큰입니다."),
+    AUTHENTICATION_TYPE_IS_NOT_BEARER(HttpStatus.BAD_REQUEST, "JWT4003",
+            "잘못된 토큰 타입입니다."),
+    ;
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

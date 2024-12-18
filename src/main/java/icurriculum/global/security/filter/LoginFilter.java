@@ -1,0 +1,101 @@
+package icurriculum.global.security.filter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import icurriculum.domain.member.RoleType;
+import icurriculum.global.security.dto.UserDetailsDTO;
+import icurriculum.global.security.service.redis.RefreshTokenService;
+import icurriculum.global.security.util.CookieUtil;
+import icurriculum.global.security.util.JwtUtil;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.io.IOException;
+import java.util.Map;
+
+
+@RequiredArgsConstructor
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${jwt.access-token-validity-in-seconds}")
+    private Long ACCESS_TOKEN_VALIDITY_IN_SECONDS;
+    @Value("${jwt.refresh-token-validity-in-seconds}")
+    private Long REFRESH_TOKEN_VALIDITY_IN_SECONDS;
+
+    private static final String ACCESS_TOKEN_KEY = "access-token";
+    private static final String REFRESH_TOKEN_KEY = "refresh-token";
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
+        try {
+            Map<String, String> credentials = objectMapper.readValue(request.getInputStream(), Map.class);
+
+            String email = credentials.get("email");
+            String password = credentials.get("password");
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(email, password);
+
+            return authenticationManager.authenticate(authenticationToken);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication)
+            throws IOException, ServletException {
+        UserDetailsDTO userDetails = (UserDetailsDTO) authentication.getPrincipal();
+
+        //securityContext 저장
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        Long memberId = userDetails.getMemberId();
+        String email = userDetails.getUsername();
+        RoleType roleType = userDetails.getMember().getRole();
+
+        //access token 생성 및 저장
+        String accessToken = jwtUtil.createJwt(memberId, email, ACCESS_TOKEN_VALIDITY_IN_SECONDS,roleType);
+        CookieUtil.addCookie(response, ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_VALIDITY_IN_SECONDS.intValue());
+
+        //refresh token 생성 및 저장
+        String refreshToken = jwtUtil.createJwt(memberId, email, REFRESH_TOKEN_VALIDITY_IN_SECONDS,roleType);
+        refreshTokenService.saveRefreshToken(memberId, refreshToken);
+        CookieUtil.addCookie(response, REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_VALIDITY_IN_SECONDS.intValue());
+
+        response.setStatus(HttpStatus.OK.value()); //성공하면 200 상태코드
+
+        Map<String,String> tokens = Map.of(
+                "accessToken",accessToken,
+                "refreshToken",refreshToken
+        );
+        response.getWriter().write(objectMapper.writeValueAsString(tokens));
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        Map<String, String> erroResponse = Map.of(
+                "error", "Authentication failed",
+                "message", failed.getMessage()
+        );
+        response.getWriter().write(objectMapper.writeValueAsString(erroResponse));
+    }
+}
