@@ -5,8 +5,8 @@ import icurriculum.domain.department.repository.DepartmentRepository;
 import icurriculum.domain.member.Member;
 import icurriculum.domain.member.dto.MemberConverter;
 import icurriculum.domain.member.dto.MemberRequest;
+import icurriculum.domain.member.dto.MemberResponse;
 import icurriculum.domain.member.repository.MemberRepository;
-import icurriculum.domain.membermajor.MajorType;
 import icurriculum.domain.membermajor.MemberMajor;
 import icurriculum.domain.membermajor.MemberMajorConverter;
 import icurriculum.domain.membermajor.repository.MemberMajorRepository;
@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -68,6 +69,12 @@ public class MemberService {
         return memberRepository.findByEmail(email).orElseThrow(
                 () -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND_BY_EMAIL)
         );
+    }
+
+    @Transactional
+    public MemberResponse.MemberInfo getMemberInfo(Member member) {
+        List<MemberMajor> deptList = memberMajorRepository.findByMember(member);
+        return memberConverter.toMemberInfo(member, deptList);
     }
 
 }
