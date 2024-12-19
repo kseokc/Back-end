@@ -56,7 +56,7 @@ public class SecurityConfig {
                                 CorsConfiguration configuration = new CorsConfiguration();
                                 configuration.setAllowedOrigins(List.of(
                                         "http://localhost:5173", // 개발 환경
-                                        "https://your-production-domain.com" // 배포된 도메인 (추후 수정)
+                                        "https://gradu-inha.com" // 배포된 도메인 (추후 수정)
                                 ));
 
                                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
