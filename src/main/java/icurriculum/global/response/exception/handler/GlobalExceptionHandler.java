@@ -3,6 +3,8 @@ package icurriculum.global.response.exception.handler;
 import icurriculum.global.response.ApiResponse;
 import icurriculum.global.response.exception.GeneralException;
 import icurriculum.global.response.status.ErrorStatus;
+import jakarta.validation.ConstraintViolationException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,21 +32,53 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    /*
-     * Todo MethodArgumentNotValidException 이 다른 상황에서도 발생하면 수정 해야함.
-     * validation, 학수번호 검증 에러 처리
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex
     ) {
-        log.error("Validation error: {}", ex.getMessage(), ex);
+        List<String> errorMessages = getValidationErrorMessages(ex);
+        log.error("Validation errors: {}", errorMessages, ex);
 
         return ResponseEntity
-                .status(ErrorStatus.CODE_IS_NOT_VALID.getHttpStatus())
+                .status(ErrorStatus.BAD_REQUEST.getHttpStatus())
                 .body(ApiResponse.onFailure(
-                        ErrorStatus.CODE_IS_NOT_VALID,
-                        ErrorStatus.CODE_IS_NOT_VALID.getMessage()
+                        ErrorStatus.BAD_REQUEST,
+                        errorMessages
                 ));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(
+            ConstraintViolationException ex
+    ) {
+        List<String> errorMessages = getValidationErrorMessages(ex);
+        log.error("Validation errors: {}", errorMessages, ex);
+
+        return ResponseEntity
+                .status(ErrorStatus.BAD_REQUEST.getHttpStatus())
+                .body(ApiResponse.onFailure(
+                        ErrorStatus.BAD_REQUEST,
+                        errorMessages
+                ));
+    }
+
+    private List<String> getValidationErrorMessages(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> {
+                    String field = fieldError.getField();       // 실패한 필드 이름
+                    String message = fieldError.getDefaultMessage(); // 검증 실패 메시지
+                    return field + ": " + message;
+                })
+                .toList();
+    }
+
+    private List<String> getValidationErrorMessages(ConstraintViolationException ex) {
+        return ex.getConstraintViolations().stream()
+                .map(violation -> {
+                    String field = violation.getPropertyPath().toString(); // 위반된 필드
+                    String message = violation.getMessage();              // 검증 실패 메시지
+                    return field + ": " + message;
+                })
+                .toList();
     }
 }

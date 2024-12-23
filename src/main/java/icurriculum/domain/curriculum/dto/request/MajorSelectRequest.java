@@ -1,7 +1,7 @@
 package icurriculum.domain.curriculum.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import icurriculum.admin.config.valid.annotation.Code;
+import icurriculum.global.valid.annotation.Code;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;

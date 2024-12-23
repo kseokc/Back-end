@@ -1,6 +1,6 @@
 package icurriculum.admin.web.form.detail;
 
-import icurriculum.admin.config.valid.annotation.Code;
+import icurriculum.global.valid.annotation.Code;
 import icurriculum.admin.config.valid.annotation.ValidEntry;
 import java.util.ArrayList;
 import java.util.List;

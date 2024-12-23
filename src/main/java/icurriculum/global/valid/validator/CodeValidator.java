@@ -1,6 +1,6 @@
-package icurriculum.admin.config.valid.validator;
+package icurriculum.global.valid.validator;
 
-import icurriculum.admin.config.valid.annotation.Code;
+import icurriculum.global.valid.annotation.Code;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
