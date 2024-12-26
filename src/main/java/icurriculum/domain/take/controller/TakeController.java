@@ -6,6 +6,7 @@ import icurriculum.domain.member.dto.MemberResponse;
 import icurriculum.domain.take.Take;
 import icurriculum.domain.take.dto.TakeConverter;
 import icurriculum.domain.take.dto.TakeRequest;
+import icurriculum.domain.take.dto.TakeRequest.TakeCreateListDTO;
 import icurriculum.domain.take.dto.TakeResponse;
 import icurriculum.domain.take.dto.TakeResponse.TakeListDTO;
 import icurriculum.domain.take.service.TakeService;
@@ -29,6 +30,7 @@ public class TakeController {
 
     private final TakeService takeService;
 
+
     @Operation(summary = "수강 정보 조회 api", description = "현재 회원의 수강정보를 반환하는 api입니다.<br>**반환 형식(리스트)**<br>과목ID<br>학수번호<br>과목명<br>과목영역<br>점수<br>전공상태")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공",
@@ -43,7 +45,7 @@ public class TakeController {
         return ApiResponse.onSuccess(takes);
     }
 
-    @Operation(summary = "수강 과목 신청 api", description = "현재 회원의 수강정보를 추가하는 api입니다.<br>**반환 형식(리스트)**<br>과목ID<br>학수번호<br>과목명<br>과목영역<br>점수<br>전공상태")
+    @Operation(summary = "수강 과목 신청 api", description = "현재 회원의 수강정보를 추가하는 api입니다.<br>**반환 형식(리스트)**<br>학수번호<br>과목명<br>과목영역<br>과목학점<br>점수<br>전공상태")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공",
             content = @Content(schema = @Schema(implementation = TakeResponse.TakeListDTO.class))
@@ -59,7 +61,7 @@ public class TakeController {
         return ApiResponse.onSuccess(takes);
     }
 
-    @Operation(summary = "수강 정보 수정 api", description = "현재 회원의 수강정보를 수정하는 api입니다.<br>**반환 형식(리스트)**<br>과목ID<br>학수번호<br>과목명<br>과목영역<br>점수<br>전공상태")
+    @Operation(summary = "수강 정보 수정 api", description = "현재 회원의 수강정보를 수정하는 api입니다.<br>**반환 형식(리스트)**<br>과목ID<br>학수번호<br>과목명<br>과목영역<br>과목학점<br>점수<br>전공상태")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공",
             content = @Content(schema = @Schema(implementation = TakeResponse.TakeListDTO.class))
@@ -69,12 +71,12 @@ public class TakeController {
             @LoginMember Member member,
             @RequestBody TakeRequest.TakeUpdateDTO takeUpdateDTO) {
 
-        TakeListDTO takes = takeService.upadateTakeByMember(member, takeUpdateDTO);
+        TakeListDTO takes = takeService.updateTakeByMember(member, takeUpdateDTO);
 
         return ApiResponse.onSuccess(takes);
     }
 
-    @Operation(summary = "수강 정보 삭제 api", description = "현재 회원의 수강정보를 삭제하는 api입니다.<br>**반환 형식(리스트)**<br>과목ID<br>학수번호<br>과목명<br>과목영역<br>점수<br>전공상태")
+    @Operation(summary = "수강 정보 삭제 api", description = "현재 회원의 수강정보를 삭제하는 api입니다.<br>**반환 형식(리스트)**<br>과목ID<br>학수번호<br>과목명<br>과목영역<br>과목학점<br>점수<br>전공상태")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공",
             content = @Content(schema = @Schema(implementation = TakeResponse.TakeListDTO.class))

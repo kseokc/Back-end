@@ -4,15 +4,20 @@ package icurriculum.domain.take.dto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 public class TakeRequest {
 
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class TakeCreateDTO{
+    @ToString
+    @Data
+    public static class TakeCreateDTO {
+
         String code;
         String name;
         String category;
@@ -20,10 +25,12 @@ public class TakeRequest {
         Double grade;
         Integer credit;
     }
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class TakeUpdateDTO{
+    public static class TakeUpdateDTO {
+
         Long takeId;
         String code;
         String name;
@@ -37,7 +44,9 @@ public class TakeRequest {
     @NoArgsConstructor
     @Getter
     @Builder
-    public static class TakeCreateListDTO{
+    @ToString
+    public static class TakeCreateListDTO {
+
         List<TakeCreateDTO> takeCreateDTOList;
     }
 
@@ -45,7 +54,11 @@ public class TakeRequest {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class TakeDeleteDTO{
+    @ToString
+    public static class TakeDeleteDTO {
+
         Long takeId;
     }
+
+
 }

@@ -11,6 +11,7 @@ import icurriculum.domain.member.Member;
 import icurriculum.domain.membermajor.MajorType;
 import icurriculum.global.response.exception.GeneralException;
 import icurriculum.global.response.status.ErrorStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -49,7 +50,7 @@ public class Take extends BaseRDBEntity {
     private String takenSemester;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     @Getter
     private Member member;
 
@@ -57,7 +58,7 @@ public class Take extends BaseRDBEntity {
      * Course Table 에 존재하는 Take
      * - nullable
      */
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "course_id", nullable = true)
     private Course course;
 
@@ -160,7 +161,8 @@ public class Take extends BaseRDBEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getCategory(), takenYear, getGrade(), takenSemester, getEffectiveCourse(),
+        return Objects.hash(getId(), getCategory(), takenYear, getGrade(), takenSemester,
+                getEffectiveCourse(),
                 getMember(),
                 getMajorType());
     }
