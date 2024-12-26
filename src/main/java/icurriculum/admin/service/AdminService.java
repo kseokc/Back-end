@@ -1,5 +1,6 @@
 package icurriculum.admin.service;
 
+import icurriculum.admin.config.exception.AdminGeneralException;
 import icurriculum.admin.web.converter.CurriculumConverter;
 import icurriculum.admin.web.form.ModifyForm;
 import icurriculum.admin.web.form.ModifyParam;
@@ -24,7 +25,6 @@ import icurriculum.domain.curriculum.data.SwAi;
 import icurriculum.domain.curriculum.repository.CurriculumRepository;
 import icurriculum.domain.department.DepartmentName;
 import icurriculum.domain.membermajor.MajorType;
-import icurriculum.global.response.exception.GeneralException;
 import icurriculum.global.response.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +64,7 @@ public class AdminService {
         );
 
         return repository.findByDecider(decider).orElseThrow(
-                () -> new GeneralException(ErrorStatus.CURRICULUM_NOT_FOUND)
+                () -> new AdminGeneralException(ErrorStatus.CURRICULUM_NOT_FOUND)
         );
     }
 

@@ -1,16 +1,15 @@
-package icurriculum.admin.config;
+package icurriculum.admin.config.exception.handler;
 
-import icurriculum.global.response.exception.GeneralException;
+import icurriculum.admin.config.exception.AdminGeneralException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
-
 @ControllerAdvice
-public class AdminGlobalControllerAdvice {
+public class AdminGlobalExceptionHandler {
 
-    @ExceptionHandler(GeneralException.class)
-    public ModelAndView handleGeneralException(GeneralException ex) {
+    @ExceptionHandler(AdminGeneralException.class)
+    public ModelAndView handleAdminGeneralException(AdminGeneralException ex) {
         ModelAndView modelAndView = new ModelAndView("error/errorPage");
 
         modelAndView.addObject("errorStatus", ex.getErrorStatus());

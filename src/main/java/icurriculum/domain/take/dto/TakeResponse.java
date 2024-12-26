@@ -7,17 +7,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 public abstract class TakeResponse {
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class TakeDTO{
+    public static class TakeDTO {
+
         private long takeId;
         private String code;
         private String name;
         private String category;
         private int credit;
         private String majorType;
+        private Double grade;
     }
 
     @Getter
@@ -25,6 +28,7 @@ public abstract class TakeResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TakeListDTO {
+
         private List<TakeDTO> takeList;
     }
 
