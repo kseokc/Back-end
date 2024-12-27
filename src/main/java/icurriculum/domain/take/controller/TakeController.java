@@ -39,7 +39,7 @@ public class TakeController {
             content = @Content(schema = @Schema(implementation = TakeResponse.TakeListDTO.class))
     )
     @GetMapping("/")
-    public ApiResponse<TakeListDTO> getTake(Member member,
+    public ApiResponse<TakeListDTO> getTake(@LoginMember Member member,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Page<Take> takePage = takeService.getTakeListByMember(member, page, size);
