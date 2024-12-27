@@ -17,10 +17,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,10 +39,12 @@ public class TakeController {
             content = @Content(schema = @Schema(implementation = TakeResponse.TakeListDTO.class))
     )
     @GetMapping("/")
-    public ApiResponse<TakeListDTO> getTake(@LoginMember Member member) {
-
-        List<Take> takeList = takeService.getTakeListByMember(member);
-        TakeListDTO takes = TakeConverter.toTakeList(takeList);
+    public ApiResponse<TakeListDTO> getTake(Member member,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Take> takePage = takeService.getTakeListByMember(member, page, size);
+        TakeListDTO takes = TakeConverter.toTakeList(takePage.getContent(),
+                takePage.getTotalPages());
 
         return ApiResponse.onSuccess(takes);
     }

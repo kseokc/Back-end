@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public abstract class TakeConverter {
 
-    public static TakeResponse.TakeListDTO toTakeList(List<Take> takes) {
+    public static TakeResponse.TakeListDTO toTakeList(List<Take> takes, int totalPage) {
         List<TakeResponse.TakeDTO> takeListDTOs = takes.stream()
                 .map(take -> {
                     Course effectiveCourse = take.getEffectiveCourse();
@@ -23,13 +23,13 @@ public abstract class TakeConverter {
                             .code(effectiveCourse.getCode())
                             .category(take.getCategory().toString())
                             .majorType(take.getMajorType().toString())
-                            .grade(take.getGrade().getScore())
                             .build();
                 })
                 .collect(Collectors.toList());
 
         return TakeResponse.TakeListDTO.builder()
                 .takeList(takeListDTOs)
+                .totalPage(totalPage) // totalPage 추가
                 .build();
     }
 

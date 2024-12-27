@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +35,13 @@ public class TakeService {
     private final TakeRepository repository;
     private final CourseRepository courseRepository;
 
-
     public List<Take> getTakeListByMember(Member member) {
         return repository.findByMember(member);
+    }
+
+    public Page<Take> getTakeListByMember(Member member, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findByMember(member, pageable);
     }
 
     public LinkedList<Take> getTakeListByMemberAndMajorType(Member member, MajorType majorType) {
@@ -76,7 +83,7 @@ public class TakeService {
 
         List<Take> takeList = repository.findByMember(member);
 
-        return TakeConverter.toTakeList(takeList);
+        return TakeConverter.toTakeList(takeList, 1);
     }
 
 
@@ -96,7 +103,7 @@ public class TakeService {
 
         List<Take> takeList = repository.findByMember(member);
 
-        return TakeConverter.toTakeList(takeList);
+        return TakeConverter.toTakeList(takeList, 1);
     }
 
 
@@ -108,7 +115,7 @@ public class TakeService {
 
         List<Take> takeList = repository.findByMember(member);
 
-        return TakeConverter.toTakeList(takeList);
+        return TakeConverter.toTakeList(takeList, 1);
     }
 
 }
