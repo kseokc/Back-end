@@ -23,6 +23,7 @@ public abstract class TakeConverter {
                             .code(effectiveCourse.getCode())
                             .category(take.getCategory().toString())
                             .majorType(take.getMajorType().toString())
+                            .grade(take.getGrade().getScore())
                             .build();
                 })
                 .collect(Collectors.toList());
