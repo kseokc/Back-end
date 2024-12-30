@@ -30,6 +30,7 @@ public abstract class TakeResponse {
     public static class TakeListDTO {
 
         private List<TakeDTO> takeList;
+        private int totalPage;
     }
 
 }
