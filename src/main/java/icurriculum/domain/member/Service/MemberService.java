@@ -51,7 +51,7 @@ public class MemberService {
                 () -> new GeneralException(ErrorStatus.DEPARTMENT_NOT_FOUND)
         );
         Member newMember = memberConverter.toEntity(request);
-        newMember.setPassword(bCryptPasswordEncoder.encode(request.getPassword().toLowerCase()));
+        newMember.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         Member member = memberRepository.save(newMember);
 
         MemberMajor memberMajor = memberMajorConverter.toEntity(department, member);
