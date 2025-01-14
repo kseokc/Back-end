@@ -32,14 +32,18 @@ public class CategoryJudgeUtils {
         return runJudge(codes, curriculum);
     }
 
+    // 복수 조회용 판별 실행  함수
+    public static Map<String, Category> judges(List<String> codes, Curriculum curriculum){
+        return runJudge(codes, curriculum);
+    }
+
     private static Map<String, Category> runJudge(List<String> codes,
-            Curriculum curriculum) {
+        Curriculum curriculum) {
         Map<String, Category> judgeCodes = new HashMap<>();
 
         Set<String> majorRequired = curriculum.getMajorRequired().getCodeSet();
         Set<String> majorSelect = curriculum.getMajorSelect().getCodeSet();
         Set<String> generalRequired = curriculum.getGeneralRequired().getCodeSet();
-
         Set<String> creativityCodes = curriculum.getCreativity().getApprovedCodeSet();
 
         Set<String> swAiCodes = curriculum.getSwAi().getApprovedCodeSet();
@@ -58,7 +62,7 @@ public class CategoryJudgeUtils {
                 continue;
             }
             if (((!swAiCodes.isEmpty() && swAiCodes.contains(code)) || (
-                    swAialternativeCodes != null && swAialternativeCodes.contains(code)))) {
+                swAialternativeCodes != null && swAialternativeCodes.contains(code)))) {
                 judgeCodes.put(code, Category.SW_AI);
                 continue;
             }
@@ -72,6 +76,7 @@ public class CategoryJudgeUtils {
             }
             if (generalRequired.contains(code)) {
                 judgeCodes.put(code, Category.교양필수);
+                continue;
             }
 
             Set<String> alternativeCodeSet = alternativeCourse.getAlternativeCodeSet(code);
@@ -144,7 +149,7 @@ public class CategoryJudgeUtils {
                 return Category.창의;
             }
             if (((swAiCodes != null && swAiCodes.contains(code)) || (
-                    swAialternativeCodes != null && swAialternativeCodes.contains(code)))) {
+                swAialternativeCodes != null && swAialternativeCodes.contains(code)))) {
                 return Category.SW_AI;
             }
             if (majorRequired.contains(code)) {

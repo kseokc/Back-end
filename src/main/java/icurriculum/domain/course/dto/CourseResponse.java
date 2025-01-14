@@ -1,5 +1,6 @@
 package icurriculum.domain.course.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,4 +21,11 @@ public abstract class CourseResponse {
         private String category;
     }
 
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DetailInfoListDTO {
+        private List<DetailInfoDTO> detailInfoList;
+    }
 }

@@ -13,7 +13,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Optional<Course> findByCode(String code);
 
     @Query("SELECT c FROM Course c " +
-            "WHERE c.code IN :codeSet")
+        "WHERE c.code IN :codeSet")
     List<Course> findByCodeSet(@Param("codeSet") Set<String> codeSet);
 
+
+    @Query("SELECT c From Course c " +
+        "WHERE c.code LIKE CONCAT('%', :code, '%')" +
+        "OR c.name LIKE CONCAT('%', :code, '%')")
+    Optional<List<Course>> findByCodeToSet(@Param("code") String code);
 }
