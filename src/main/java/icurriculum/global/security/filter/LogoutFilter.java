@@ -43,7 +43,8 @@ public class LogoutFilter extends GenericFilterBean {
         String token = authHeader.substring(7);
 
         if (jwtUtil.validateToken(token)) {
-            refreshTokenService.deleteRefreshToken(token);
+            Long memberId = jwtUtil.getMemberId(token);
+            refreshTokenService.deleteRefreshToken(memberId);
             sendSuccessResponse(response, "Logout Successful");
         } else {
             sendErrorResponse(response,HttpStatus.UNAUTHORIZED, "Invalid Token");
