@@ -56,6 +56,7 @@ public class SecurityConfig {
                                 CorsConfiguration configuration = new CorsConfiguration();
                                 configuration.setAllowedOrigins(List.of(
                                         "http://localhost:5173", // 개발 환경
+                                        "http://localhost:8080", // 개발 환경
                                         "https://gradu-inha.com" // 배포된 도메인 (추후 수정)
                                 ));
 
@@ -84,11 +85,16 @@ public class SecurityConfig {
                         .requestMatchers("/mail/**").permitAll()
                         .requestMatchers("/members/join").permitAll()
                         .requestMatchers("/error/**").permitAll()
+                        .requestMatchers("/token/refresh").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/login/admin").permitAll()
                         .requestMatchers( //swagger 세팅
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**").permitAll()
+                         .requestMatchers("/assets/**",
+                                "/css/**",
+                                "/js/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
