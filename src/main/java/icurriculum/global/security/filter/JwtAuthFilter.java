@@ -42,7 +42,8 @@ public class JwtAuthFilter extends OncePerRequestFilter { //http 요청마다 Jw
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String authorization = request.getHeader(AUTHORIZATION_HEADER); //Jwt 인증 정보 추출
+        //String authorization = request.getHeader(AUTHORIZATION_HEADER); //Jwt 인증 정보 추출
+        String authorization = jwtUtil.getJwtFromRequest(request);
 
         if (authorization == null) {
             SecurityContextHolder.clearContext();

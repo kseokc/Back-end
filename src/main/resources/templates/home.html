@@ -6,7 +6,14 @@
 </head>
 
 <body>
-
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/admin">I-CURRICULUM</a>
+    <div class="ml-auto">
+      <button type="button" class="btn btn-outline-danger" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+</header>
 <div class="container">
   <div th:replace="~{fragments/bodyHeader :: bodyHeader}"/>
 
@@ -37,6 +44,28 @@
   </div>
   <div th:replace="~{fragments/footer :: footer}"/>
 </div>
+
+<script>
+  function logout() {
+    // 배포환경일 경우, fetch("https://api.gradu-inha.com/admin",{
+    // 개발환경일 경우, fetch("http://localhost:8080/logout",{
+    fetch("https://api.gradu-inha.com/logout",{
+      method:"POST"})
+    .then(response=>response.text())
+    .then((res)=>{
+      if(res==="Logout Successful"){
+        // 로그아웃 처리 로직
+        // 예: localStorage에서 토큰 삭제 후 페이지 이동
+        localStorage.removeItem('Authorization');
+        document.cookie = "Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        // 로그인 페이지로 리다이렉트
+        window.location.href = '/login/admin';
+      }else{
+        alert("로그아웃을 재시도 해주세요");
+      }
+    })
+  }
+</script>
 
 </body>
 </html>

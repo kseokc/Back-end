@@ -32,7 +32,8 @@ public class LogoutFilter extends GenericFilterBean {
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
+        //String authHeader = request.getHeader("Authorization");
+        String authHeader = jwtUtil.getJwtFromRequest(request);
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("잘못된 Authorization 헤더 값 입니다.");

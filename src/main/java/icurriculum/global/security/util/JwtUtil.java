@@ -4,6 +4,7 @@ import icurriculum.domain.member.RoleType;
 import icurriculum.global.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import org.springframework.util.StringUtils;
 
 @Component
 public class JwtUtil {
@@ -102,5 +104,34 @@ public class JwtUtil {
     private Date localDateTimeToDate(LocalDateTime localDateTime) {
         Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
         return Date.from(instant);
+    }
+
+    // 요청값에서 header또는 cookie값을 확인해서 token 값 추출
+    public String getJwtFromRequest(HttpServletRequest request) {
+        // 헤더에서 JWT 추출
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            return bearerToken;
+        }
+
+        // 쿠키에서 JWT 추출
+        String cookieToken = getCookieValue(request, "Authorization");
+        if (StringUtils.hasText(cookieToken)) {
+            return cookieToken;
+        }
+
+        return null;
+    }
+
+    // 쿠키에서 값 추출하는 메소드
+    private String getCookieValue(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if (cookieName.equals(cookie.getName())) {
+                    return "Bearer "+cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

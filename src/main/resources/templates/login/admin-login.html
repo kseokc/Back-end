@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+  <title>I-CURRICULUM</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div class="container">
+  <div th:replace="~{fragments/bodyHeader :: bodyHeader}"/>
+
+
+  <div class="jumbotron">
+    <p class="lead font-italic">커리큘럼 등록</p>
+    <hr class="my-4">
+
+
+
+    <!--      <div th:if="${#fields.hasGlobalErrors()}">-->
+    <!--        <p class="field-error"-->
+    <!--           th:each="err : ${#fields.globalErrors()}"-->
+    <!--           th:text="${err}">글로벌 오류 메시지-->
+    <!--        </p>-->
+    <!--      </div>-->
+
+    <div class="mb-3">
+      <p class="lead">이메일</p>
+      <input type="text" name="id" id="id" placeholder="아이디를 입력하세요.">
+    </div>
+
+
+    <hr class="my-4">
+
+    <div class="mb-3">
+      <p class="lead">비밀번호</p>
+      <input type="password" name="password" id="password" placeholder="비밀번호를 입력하세요.">
+    </div>
+
+    <hr class="my-4">
+
+
+    <button type="button" class="btn btn-lg btn-outline-primary" onclick="login()">
+      로그인
+    </button>
+
+
+
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"/>
+</div>
+<script>
+  function login() {
+    const id = document.getElementById("id").value;
+    const password = document.getElementById("password").value;
+
+    // 개발 환경일 경우, fetch("http://localhost:8080/login",{
+    // 배포 환경일 경우, fetch("https://api.gradu-inha.com/login",{
+    fetch("https://api.gradu-inha.com/login", {
+      method: "POST",
+      headers: {
+        // 'Origin': 'https://api.gradu-inha.com',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: id,
+        password: password
+      })
+    })
+    .then(response => response.json())
+    .then((data)=>{
+      const token = data.accessToken;
+      if(token===undefined){
+        alert("사용자 아이디가 틀립니다.");
+        return;
+      }
+      // secure는 https 일때만 설정 dev환경일때는 제외
+      // samesite=strict일떄는 크로스사이트일때는 쿠키값이 들어가지 않는다
+      document.cookie = `Authorization=${token}; path=/;`;
+      localStorage.setItem('Authorization', token);
+
+      // 개발 환경일 경우, fetch("http://localhost:8080/admin",{
+      // 배포 환경일 경우, fetch("https://api.gradu-inha.com/admin",{
+      fetch("https://api.gradu-inha.com/admin", {
+        method: "GET"
+      }).then((res)=>{
+        if(res.status===403){
+          localStorage.removeItem('Authorization');
+          document.cookie = "Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+          alert("관리자 계정이 아닙니다.")
+          //개발 환경일경우, http://localhost:5173
+          window.location.href = "https://gradu-inha.com";
+        }
+        else{
+          window.location.href = "/admin";
+        }
+      })
+    })
+    .catch(error => console.error('Error:', error));
+
+  }
+
+</script>
+</body>
+</html>
