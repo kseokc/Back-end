@@ -134,4 +134,13 @@ public class JwtUtil {
         }
         return null;
     }
+
+    public Long getMemberId(String token) {
+        String meberId = Jwts.parser().verifyWith(secretKey).build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .get(PAYLOAD_MEMBER_ID_KEY, String.class);
+
+        return Long.valueOf(meberId);
+    }
 }
