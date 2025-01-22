@@ -57,7 +57,8 @@ public class SecurityConfig {
                                 configuration.setAllowedOrigins(List.of(
                                         "http://localhost:5173", // 개발 환경
                                         "http://localhost:8080", // 개발 환경
-                                        "https://gradu-inha.com" // 배포된 도메인 (추후 수정)
+                                        "https://gradu-inha.com", // 배포된 도메인 (추후 수정)
+                                        "https://api.gradu-inha.com" // 배포된 서버 도메인
                                 ));
 
                                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
